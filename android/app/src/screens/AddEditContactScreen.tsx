@@ -4,7 +4,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useProfileImage } from '../hooks/useProfileImage';
 import { useContacts } from '../hooks/useContacts';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddEditContact'>;
 
@@ -48,7 +48,7 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
             <Image source={{ uri: profileImage }} style={styles.profileImage} />
           ) : (
             <View style={styles.placeholder}>
-              <Text style={styles.currentAvatar}>{name ? name[0] : " "}</Text>
+              <Text style={styles.currentAvatar}><Icon name="image" size={50} color="FFF" /></Text>
             </View>
           )}
         </TouchableOpacity>
