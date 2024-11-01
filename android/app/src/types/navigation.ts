@@ -5,6 +5,7 @@ export interface Contact {
   email?: string;
   profileImage?: string;
   tag?: 'Client' | 'Employee';
+  location?: { latitude: number; longitude: number } | null;
 }
 
 export type RootStackParamList = {

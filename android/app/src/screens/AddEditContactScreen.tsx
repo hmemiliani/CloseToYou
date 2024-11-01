@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, TextInput, Button, Image, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Image, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useProfileImage } from '../hooks/useProfileImage';
 import { useContacts } from '../hooks/useContacts';
+import { useLocation } from '../hooks/useLocation';
+import MapView, { Marker, MapPressEvent, PROVIDER_GOOGLE } from 'react-native-maps';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddEditContact'>;
@@ -11,6 +13,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AddEditContact'>;
 const AddEditContactScreen = ({ route, navigation }: Props) => {
   const { addOrUpdateContact, selectTag, tag } = useContacts();
   const { profileImage, takePhoto, pickImageFromGallery, setProfileImage } = useProfileImage();
+  const { location, selectLocation } = useLocation();
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -24,8 +27,9 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
       setEmail(contact.email || '');
       setProfileImage(contact.profileImage || undefined);
       selectTag(contact.tag || 'Client');
+      if (contact.location) {selectLocation(contact.location.latitude, contact.location.longitude);}
     }
-  }, [route.params]);
+  }, [route.params, selectLocation, selectTag, setProfileImage]);
 
   const handleSave = async () => {
     const contact = {
@@ -35,6 +39,7 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
       email,
       profileImage,
       tag,
+      location: location ?? undefined,
     };
     await addOrUpdateContact(contact);
     navigation.navigate('ContactList', { newContact: contact });
@@ -48,7 +53,7 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
             <Image source={{ uri: profileImage }} style={styles.profileImage} />
           ) : (
             <View style={styles.placeholder}>
-              <Text style={styles.currentAvatar}><Icon name="image" size={50} color="FFF" /></Text>
+              <Text style={styles.currentAvatar}><Icon name="image" size={50} color="#FFF" /></Text>
             </View>
           )}
         </TouchableOpacity>
@@ -68,6 +73,32 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
       <TextInput style={styles.input} placeholder="Name" value={name} onChangeText={setName} />
       <TextInput style={styles.input} placeholder="Phone" value={phone} onChangeText={setPhone} />
       <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} />
+
+      {location ? (
+        <MapView
+          style={styles.map}
+          provider={PROVIDER_GOOGLE}
+          initialRegion={{
+            latitude: location?.latitude || 37.78825,
+            longitude: location?.longitude || -122.4324,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}
+          onMapReady={() => console.log('Map is ready')}
+          onPress={(e: MapPressEvent) => {
+            const { latitude, longitude } = e.nativeEvent.coordinate;
+            selectLocation(latitude, longitude);
+          }}
+        >
+          {location && <Marker coordinate={location} />}
+        </MapView>
+      ) : (
+        <>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text style={styles.loadingText}>Loading map...</Text>
+        </>
+      )}
+
       <Button title="Save Contact" onPress={handleSave} />
     </View>
   );
@@ -84,6 +115,8 @@ const styles = StyleSheet.create({
   tagContainer: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 },
   tagOption: { fontSize: 16, padding: 10, color: 'grey' },
   selectedTag: { fontWeight: 'bold', color: 'blue' },
+  map: { height: 200, marginVertical: 20 },
+  loadingText: { textAlign: 'center', margin: 10, color: 'gray' },
 });
 
 export default AddEditContactScreen;
