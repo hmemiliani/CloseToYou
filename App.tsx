@@ -1,10 +1,10 @@
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import ContactListScreen from './android/app/src/screens/ContactListScreen';
-import AddEditContactScreen from './android/app/src/screens/AddEditContactScreen';
-import {RootStackParamList} from './android/app/src/types/navigation';
-import ContactDetailScreen from './android/app/src/screens/ContactDetailScreen';
+import ContactListScreen from './src/screens/ContactListScreen';
+import AddEditContactScreen from './src/screens/AddEditContactScreen';
+import {RootStackParamList} from './src/types/navigation';
+import ContactDetailScreen from './src/screens/ContactDetailScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

@@ -35,7 +35,11 @@ const ContactListScreen = () => {
             <Text style={styles.contactName}>{item.name}</Text>
           </View>
           <View>
+          {item.tag ? (
             <Text style={styles.contactTag}>{item.tag}</Text>
+          ) : (
+            <Text style={styles.contactTag}>No-Tag</Text>
+          )}
           </View>
         </View>
       </View>

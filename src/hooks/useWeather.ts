@@ -12,7 +12,7 @@ type WeatherData = {
   }[];
 };
 
-export const useWeather = (latitude: number, longitude: number) => {
+export const useWeather = (latitude?: number, longitude?: number) => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
