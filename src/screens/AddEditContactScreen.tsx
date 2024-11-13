@@ -29,7 +29,7 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
       selectTag(contact.tag || 'Client');
       if (contact.location) {selectLocation(contact.location.latitude, contact.location.longitude);}
     }
-  }, [route.params, selectLocation, selectTag, setProfileImage]);
+  }, [route.params]);
 
   const handleSave = async () => {
     const contact = {
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   profileImage: { width: 100, height: 100, borderRadius: 50, marginBottom: 20 },
   currentAvatar: { fontSize: 50 },
   placeholder: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#ccc', justifyContent: 'center', alignItems: 'center', marginBottom: 20 },
-  input: { height: 40, borderColor: 'gray', borderWidth: 1, margin: 10, padding: 10 },
+  input: { height: 40, borderColor: 'gray', borderWidth: 1, margin: 10, padding: 10, color: 'back'},
   label: { fontSize: 16, marginBottom: 10 },
   tagContainer: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 },
   tagOption: { fontSize: 16, padding: 10, color: 'grey' },

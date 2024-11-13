@@ -125,10 +125,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: 'back',
   },
   contactInfo: {
     fontSize: 18,
     marginBottom: 10,
+    color: 'back',
   },
   contactTag: {
     fontSize: 16,

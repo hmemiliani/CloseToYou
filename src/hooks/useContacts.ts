@@ -1,72 +1,59 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 import { Contact } from '../types/navigation';
 
-const STORAGE_KEY = '@contacts';
 
-export const useContacts = (route?: any) => {
+export const useContacts = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [tag, setTag] = useState<'Client' | 'Employee' | undefined>(undefined);
 
   const loadContacts = async () => {
     try {
-      const storedContacts = await AsyncStorage.getItem(STORAGE_KEY);
-      if (storedContacts !== null) {
-        setContacts(JSON.parse(storedContacts));
-      }
-    } catch (e) {
-      console.error('Failed to load contacts.', e);
+      const token = await AsyncStorage.getItem('authToken');
+      const response = await axios.get('https://yourapi.com/contacts', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setContacts(response.data);
+    } catch (error) {
+      console.error('Failed to load contacts:', error);
     }
   };
 
-  const saveContacts = async (newContacts: Contact[]) => {
+  const addOrUpdateContact = async (contact: Contact) => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newContacts));
-    } catch (e) {
-      console.error('Failed to save contacts.', e);
+      const token = await AsyncStorage.getItem('authToken');
+      if (contact.id) {
+        // Si existe `contact.id`, actualiza el contacto
+        await axios.put(`https://yourapi.com/contacts/${contact.id}`, contact, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        // Si no existe `contact.id`, crea un nuevo contacto
+        await axios.post('https://yourapi.com/contacts', contact, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+      loadContacts(); // Recarga los contactos después de agregar/actualizar
+    } catch (error) {
+      console.error('Failed to add/update contact:', error);
     }
   };
 
-  const addOrUpdateContact = (contact: Contact) => {
-    setContacts((prevContacts) => {
-      const contactExists = prevContacts.some((c) => c.id === contact.id);
-      const updatedContacts = contactExists
-        ? prevContacts.map((c) => (c.id === contact.id ? contact : c))
-        : [...prevContacts, { ...contact, tag }];
-      saveContacts(updatedContacts);
+  const deleteContact = async (contactId: string) => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      await axios.delete(`https://yourapi.com/contacts/${contactId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       loadContacts();
-      return updatedContacts;
-    });
-  };
-
-  const deleteContact = (contactId: string) => {
-    setContacts((prevContacts) => {
-      const updatedContacts = prevContacts.filter((contact) => contact.id !== contactId);
-      saveContacts(updatedContacts);
-      return updatedContacts;
-    });
-  };
-
-  useEffect(() => {
-    if (route?.params?.contactIdToDelete) {
-      deleteContact(route.params.contactIdToDelete);
+    } catch (error) {
+      console.error('Failed to delete contact:', error);
     }
-  }, [route?.params?.contactIdToDelete]);
+  };
 
   useEffect(() => {
     loadContacts();
   }, []);
 
-  const selectTag = (selectedTag: 'Client' | 'Employee') => {
-    setTag(selectedTag);
-  };
-
-  return {
-    contacts,
-    loadContacts,
-    addOrUpdateContact,
-    deleteContact,
-    tag,
-    selectTag,
-  };
+  return { contacts, loadContacts, addOrUpdateContact, deleteContact };
 };

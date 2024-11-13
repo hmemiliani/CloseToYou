@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Geolocation from '@react-native-community/geolocation';
 import { Alert, Platform } from 'react-native';
-import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
 export const useLocation = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
