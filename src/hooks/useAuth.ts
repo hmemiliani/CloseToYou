@@ -1,20 +1,32 @@
+import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import api, { setAuthToken } from '../api/axiosConfig';
 
-export const useAuth = () => {
-  const login = async (email: string, password: string) => {
-    const response = await axios.post('https://yourapi.com/login', { email, password });
-    const token = response.data.token;
-    await AsyncStorage.setItem('authToken', token);
+interface LoginValues {
+  email: string;
+  password: string;
+}
+
+const useAuth = (setLoading: (loading: boolean) => void, navigation: any) => {
+  const handleLogin = async (values: LoginValues) => {
+    try {
+      setLoading(true);
+      const response = await api.post('/auth/login', values);
+      const { accessToken } = response.data;
+      console.log(accessToken);
+      
+      await AsyncStorage.setItem('authToken', accessToken);
+      setAuthToken(accessToken);
+      navigation.navigate('ContactList');
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Login failed', 'Invalid credentials');
+    } finally {
+      setLoading(false); // Detiene el indicador de carga
+    }
   };
 
-  const logout = async () => {
-    await AsyncStorage.removeItem('authToken');
-  };
-
-  const getAuthToken = async () => {
-    return await AsyncStorage.getItem('authToken');
-  };
-
-  return { login, logout, getAuthToken };
+  return { handleLogin };
 };
+
+export default useAuth;

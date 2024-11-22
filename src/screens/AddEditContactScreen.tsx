@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, TextInput, Button, Image, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, TextInput, Button, Image, TouchableOpacity, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useProfileImage } from '../hooks/useProfileImage';
@@ -27,22 +27,41 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
       setEmail(contact.email || '');
       setProfileImage(contact.profileImage || undefined);
       selectTag(contact.tag || 'Client');
-      if (contact.location) {selectLocation(contact.location.latitude, contact.location.longitude);}
+      if (contact.location) {
+        selectLocation(contact.location.latitude, contact.location.longitude);
+      }
     }
   }, [route.params]);
 
   const handleSave = async () => {
-    const contact = {
-      id: route.params?.contactId || Date.now().toString(),
-      name,
-      phone,
-      email,
-      profileImage,
-      tag,
-      location: location ?? undefined,
-    };
-    await addOrUpdateContact(contact);
-    navigation.navigate('ContactList', { newContact: contact });
+    try {
+      let file = null;
+
+      if (profileImage) {
+        file = {
+          uri: profileImage,
+          type: 'image/jpeg',
+          name: `photo_${Date.now()}.jpg`,
+        };
+      }
+
+      const transformedContact = {
+        ...(route.params?.contactId && { id: route.params.contactId }),
+        name,
+        email: email || '',
+        phone: phone || '' ,
+        contactType: tag || 'Client',
+        latitude: location?.latitude || null,
+        longitude: location?.longitude || null,
+        profilePicture: null,
+      };
+      console.log(transformedContact);
+      
+      await addOrUpdateContact(transformedContact, file);
+      navigation.navigate('ContactList', {});
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save contact.');
+    }
   };
 
   return (
@@ -84,7 +103,6 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           }}
-          onMapReady={() => console.log('Map is ready')}
           onPress={(e: MapPressEvent) => {
             const { latitude, longitude } = e.nativeEvent.coordinate;
             selectLocation(latitude, longitude);
@@ -105,12 +123,12 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 20, display: 'flex' },
+  container: { padding: 20 },
   imgContainer: { alignItems: 'center', marginBottom: 20 },
   profileImage: { width: 100, height: 100, borderRadius: 50, marginBottom: 20 },
-  currentAvatar: { fontSize: 50 },
+  currentAvatar: { fontSize: 50, color: '#FFF' },
   placeholder: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#ccc', justifyContent: 'center', alignItems: 'center', marginBottom: 20 },
-  input: { height: 40, borderColor: 'gray', borderWidth: 1, margin: 10, padding: 10, color: 'back'},
+  input: { height: 40, borderColor: 'gray', borderWidth: 1, margin: 10, padding: 10 },
   label: { fontSize: 16, marginBottom: 10 },
   tagContainer: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 },
   tagOption: { fontSize: 16, padding: 10, color: 'grey' },

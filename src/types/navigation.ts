@@ -9,7 +9,9 @@ export interface Contact {
 }
 
 export type RootStackParamList = {
+  Auth: undefined;
   Login: undefined;
+  Register: undefined;
   ContactList: { newContact?: Contact; contactIdToDelete?: string };
   AddEditContact: { contactId?: string; contact?: Contact };
   ContactDetail: { contact: Contact };

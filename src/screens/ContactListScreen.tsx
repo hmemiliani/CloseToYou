@@ -14,7 +14,7 @@ const ContactListScreen = () => {
   useFocusEffect(
     React.useCallback(() => {
       loadContacts();
-    }, [loadContacts])
+    }, [])
   );
 
   const renderItem = ({ item }: { item: Contact }) => (
@@ -23,8 +23,8 @@ const ContactListScreen = () => {
       onPress={() => navigation.navigate('ContactDetail', { contact: item })}
     >
       <View style={styles.infoContactContainer}>
-        {item.profileImage ? (
-          <Image source={{ uri: item.profileImage }} style={styles.profileImage} />
+        {item.profilePicture ? (
+          <Image source={{ uri: item.profilePicture }} style={styles.profileImage} />
         ) : (
           <View style={styles.placeholder}>
             <Text style={styles.placeholderText}>{item.name ? item.name[0] : '?'}</Text>
@@ -35,11 +35,11 @@ const ContactListScreen = () => {
             <Text style={styles.contactName}>{item.name}</Text>
           </View>
           <View>
-          {item.tag ? (
-            <Text style={styles.contactTag}>{item.tag}</Text>
-          ) : (
-            <Text style={styles.contactTag}>No-Tag</Text>
-          )}
+            {item.contactType ? (
+              <Text style={styles.contactTag}>{item.contactType}</Text>
+            ) : (
+              <Text style={styles.contactTag}>No-Tag</Text>
+            )}
           </View>
         </View>
       </View>
@@ -67,7 +67,8 @@ const styles = StyleSheet.create({
     padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
-    flexDirection: 'row', alignItems: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   infoContactContainer: {
     flexDirection: 'row',

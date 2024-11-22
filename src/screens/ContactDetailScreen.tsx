@@ -8,12 +8,37 @@ import MapView, { Marker } from 'react-native-maps';
 import { useWeather } from '../hooks/useWeather';
 import { getWeatherIcon } from '../utils/weatherUtils';
 
+type RawContact = {
+  id: string;
+  name: string;
+  email: string;
+  phone: number;
+  contactType: 'Client' | 'Employee';
+  latitude?: number;
+  longitude?: number;
+  profilePicture?: string;
+};
+
 type Props = NativeStackScreenProps<RootStackParamList, 'ContactDetail'>;
 
 const ContactDetailScreen = ({ route, navigation }: Props) => {
   const { deleteContact } = useContacts();
-  const { contact } = route.params;
-  const { weather, loading, error } = useWeather(contact.location.latitude, contact.location.longitude);
+  const rawContact: RawContact = route.params.contact;
+
+  // Transformar los datos del contacto
+  const contact = {
+    ...rawContact,
+    location: rawContact.latitude && rawContact.longitude
+      ? { latitude: rawContact.latitude, longitude: rawContact.longitude }
+      : null,
+    profileImage: rawContact.profilePicture,
+    tag: rawContact.contactType,
+  };
+
+  const { weather, loading, error } = useWeather(
+    contact.location?.latitude || 0,
+    contact.location?.longitude || 0
+  );
 
   const handleDelete = () => {
     Alert.alert(
@@ -42,10 +67,10 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
           <Text style={styles.placeholderText}>{contact.name ? contact.name[0] : '?'}</Text>
         </View>
       )}
-      <Text style={styles.contactName}>{contact.name}</Text>
-      <Text style={styles.contactInfo}>📞 {contact.phone}</Text>
-      <Text style={styles.contactInfo}>✉️ {contact.email}</Text>
-      <Text style={styles.contactTag}>Type: {contact.tag}</Text>
+      <Text style={styles.contactName}>{contact.name || 'No Name'}</Text>
+      <Text style={styles.contactInfo}>📞 {contact.phone || 'No Phone'}</Text>
+      <Text style={styles.contactInfo}>✉️ {contact.email || 'No Email'}</Text>
+      <Text style={styles.contactTag}>Type: {contact.tag || 'No Type'}</Text>
 
       <View style={styles.actionsContainer}>
         <TouchableOpacity
@@ -69,16 +94,19 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
           <Text style={styles.error}>{error}</Text>
         ) : weather ? (
           <View style={styles.weatherContainer}>
-            <Icon name="thermometer-half" size={20} color="#333" style={styles.icon} /><Text style={styles.weatherText}>{weather.main.temp}°C</Text>
-            <Icon name="tint" size={20} color="#333" style={styles.icon} /><Text style={styles.weatherText}>{weather.main.humidity}%</Text>
-            {getWeatherIcon(weather.weather[0].description)}<Text style={styles.weatherText}>{weather.weather[0].description}</Text>
+            <Icon name="thermometer-half" size={20} color="#333" style={styles.icon} />
+            <Text style={styles.weatherText}>{weather.main.temp}°C</Text>
+            <Icon name="tint" size={20} color="#333" style={styles.icon} />
+            <Text style={styles.weatherText}>{weather.main.humidity}%</Text>
+            {getWeatherIcon(weather.weather[0].description)}
+            <Text style={styles.weatherText}>{weather.weather[0].description}</Text>
           </View>
         ) : (
           <Text>No weather data available.</Text>
         )}
       </View>
 
-      {contact.location && (
+      {contact.location ? (
         <MapView
           style={styles.map}
           initialRegion={{
@@ -91,6 +119,8 @@ const ContactDetailScreen = ({ route, navigation }: Props) => {
         >
           <Marker coordinate={contact.location} />
         </MapView>
+      ) : (
+        <Text style={styles.error}>Location not available for this contact.</Text>
       )}
     </View>
   );
@@ -125,12 +155,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: 'back',
+    color: 'black',
   },
   contactInfo: {
     fontSize: 18,
     marginBottom: 10,
-    color: 'back',
+    color: 'black',
   },
   contactTag: {
     fontSize: 16,
@@ -151,18 +181,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 5,
   },
-  title: { fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
   weatherContainer: {
     marginTop: 15,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 15,
-    boxShadow: 'rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgb(209, 213, 219) 0px 0px 0px 1px inset',
     padding: 20,
     borderRadius: 10,
+    backgroundColor: '#f9f9f9',
   },
   weatherText: {
     fontSize: 16,
@@ -170,7 +196,6 @@ const styles = StyleSheet.create({
   },
   icon: {
     paddingRight: 0,
-
   },
   error: {
     color: 'red',
