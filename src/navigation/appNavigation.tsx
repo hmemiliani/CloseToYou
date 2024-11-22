@@ -35,6 +35,7 @@ export function AppNavigator() {
         component={ContactListScreen}
         options={({ navigation }) => ({
           title: 'Contacts',
+          // eslint-disable-next-line react/no-unstable-nested-components
           headerRight: () => (
             <TouchableOpacity onPress={() => navigation.navigate('UserDetail')} style={{ marginRight: 15 }}>
               <Icon name="user" size={24} color="#000" />

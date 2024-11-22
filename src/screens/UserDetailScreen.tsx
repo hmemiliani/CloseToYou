@@ -19,7 +19,6 @@ const UserDetailScreen = ({ navigation }: Props) => {
 
   const fetchUserData = async () => {
     try {
-      // Obtener el token desde AsyncStorage
       const token = await AsyncStorage.getItem('authToken');
       if (!token) {
         throw new Error('Authentication token not found');
@@ -33,7 +32,6 @@ const UserDetailScreen = ({ navigation }: Props) => {
       console.log('User ID:', userId);
       const response = await api.get(`/users/${userId}`);
 
-      // Actualizar el estado con los datos del usuario
       setUserData(response.data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -53,7 +51,7 @@ const UserDetailScreen = ({ navigation }: Props) => {
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem('authToken');
-    await AsyncStorage.removeItem('userId'); // También eliminamos el ID del usuario si se guardó
+    await AsyncStorage.removeItem('userId');
     navigation.replace('Login');
   };
 

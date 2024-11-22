@@ -58,10 +58,8 @@ export const useContacts = () => {
       }
 
       if (contact.id) {
-        await api.put(`/contacts/${contact.id}`, contact);
+        await api.patch(`/contacts/${contact.id}`, contact);
       } else {
-        console.log(JSON.stringify(contact));
-        
         await api.post('/contacts', contact);
       }
       loadContacts();
