@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator, View, StyleSheet } from 'react-native';
 
 import ContactListScreen from '../screens/ContactListScreen';
 import AddEditContactScreen from '../screens/AddEditContactScreen';
@@ -7,9 +9,10 @@ import ContactDetailScreen from '../screens/ContactDetailScreen';
 import LoginScreen from '../screens/LoginScreen';
 import UserDetailScreen from '../screens/UserDetailScreen';
 import RegisterScreen from '../screens/RegisterScreen';
-import { RootStackParamList } from '../types/navigation';
+import OnboardingScreen from '../screens/OnboardingScreen';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { TouchableOpacity } from 'react-native';
+import { RootStackParamList } from '../types/navigation';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -23,8 +26,49 @@ function AuthStack() {
 }
 
 export function AppNavigator() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      try {
+        const onboardingSeen = await AsyncStorage.getItem('onboardingSeen');
+        //setShowOnboarding(true);
+        setShowOnboarding(!onboardingSeen);
+      } catch (error) {
+        console.error('Error checking onboarding state:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkOnboarding();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007BFF" />
+      </View>
+    );
+  }
+
   return (
-    <Stack.Navigator initialRouteName="Auth">
+    <Stack.Navigator initialRouteName={showOnboarding ? 'Onboarding' : 'Auth'}>
+      {showOnboarding && (
+        <Stack.Screen
+          name="Onboarding"
+          component={OnboardingScreen}
+          options={{
+            headerShown: false,
+          }}
+          listeners={{
+            focus: async () => {
+              await AsyncStorage.setItem('onboardingSeen', 'true');
+            },
+          }}
+        />
+      )}
       <Stack.Screen
         name="Auth"
         component={AuthStack}
@@ -37,7 +81,10 @@ export function AppNavigator() {
           title: 'Contacts',
           // eslint-disable-next-line react/no-unstable-nested-components
           headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate('UserDetail')} style={{ marginRight: 15 }}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('UserDetail')}
+              style={{ marginRight: 15 }}
+            >
               <Icon name="user" size={24} color="#000" />
             </TouchableOpacity>
           ),
@@ -60,3 +107,12 @@ export function AppNavigator() {
     </Stack.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+});

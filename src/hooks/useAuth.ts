@@ -35,7 +35,6 @@ const useAuth = (setLoading: (loading: boolean) => void, navigation: any) => {
       await AsyncStorage.setItem('userId', userId);
 
       setAuthToken(accessToken);
-      Alert.alert('Login successful');
       navigation.navigate('ContactList');
     } catch (error) {
       if (error instanceof Error) {

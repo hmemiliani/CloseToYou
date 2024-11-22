@@ -9,6 +9,7 @@ export interface Contact {
 }
 
 export type RootStackParamList = {
+  Onboarding: undefined;
   Auth: undefined;
   Login: undefined;
   Register: undefined;

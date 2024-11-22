@@ -35,7 +35,8 @@ const LoginScreen: React.FC = () => {
             <ActivityIndicator size="large" color="#1E88E5" />
           ) : (
             <>
-              <Text style={styles.title}>Welcome Back</Text>
+              <Text style={styles.title}>Welcome to</Text>
+              <Text style={styles.title1}>CloseToYou</Text>
               <Text style={styles.subtitle}>Log in to your account</Text>
 
               <Text style={styles.label}>Email</Text>
@@ -97,10 +98,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   title: {
-    fontSize: 28,
+    fontSize: 35,
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#333',
+  },
+  title1: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#6e76ff',
     marginBottom: 8,
   },
   subtitle: {

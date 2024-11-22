@@ -55,8 +55,6 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
         longitude: location?.longitude || null,
         profilePicture: null,
       };
-      console.log(transformedContact);
-      
       await addOrUpdateContact(transformedContact, file);
       navigation.navigate('ContactList', {});
     } catch (error) {

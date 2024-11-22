@@ -24,12 +24,10 @@ const UserDetailScreen = ({ navigation }: Props) => {
         throw new Error('Authentication token not found');
       }
 
-      const userId = '52f45269-e9f0-4028-98bb-e2096bec53ea';
+      const userId = await AsyncStorage.getItem('userId');
       if (!userId) {
         throw new Error('User ID not found');
       }
-
-      console.log('User ID:', userId);
       const response = await api.get(`/users/${userId}`);
 
       setUserData(response.data);
@@ -52,7 +50,7 @@ const UserDetailScreen = ({ navigation }: Props) => {
   const handleLogout = async () => {
     await AsyncStorage.removeItem('authToken');
     await AsyncStorage.removeItem('userId');
-    navigation.replace('Login');
+    navigation.replace('Auth');
   };
 
   useEffect(() => {

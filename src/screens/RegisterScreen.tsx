@@ -10,15 +10,19 @@ const RegisterScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { handleRegister } = useRegister(navigation);
 
+  // Esquema de validación actualizado con confirmPassword
   const registerValidationSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     email: Yup.string().email('Invalid email').required('Email is required'),
     password: Yup.string().min(6, 'Password too short').required('Password is required'),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref('password'), undefined], 'Passwords must match')
+      .required('Please confirm your password'),
   });
 
   return (
     <Formik
-      initialValues={{ name: '', email: '', password: '' }}
+      initialValues={{ name: '', email: '', password: '', confirmPassword: '' }}
       validationSchema={registerValidationSchema}
       onSubmit={handleRegister}
     >
@@ -61,6 +65,20 @@ const RegisterScreen: React.FC = () => {
           />
           {errors.password && touched.password && <Text style={styles.error}>{errors.password}</Text>}
 
+          <Text style={styles.label}>Confirm Password</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={handleChange('confirmPassword')}
+            onBlur={handleBlur('confirmPassword')}
+            value={values.confirmPassword}
+            placeholder="Confirm your password"
+            placeholderTextColor="#aaa"
+            secureTextEntry
+          />
+          {errors.confirmPassword && touched.confirmPassword && (
+            <Text style={styles.error}>{errors.confirmPassword}</Text>
+          )}
+
           <TouchableOpacity style={styles.registerButton} onPress={handleSubmit as () => void}>
             <Text style={styles.registerButtonText}>Register</Text>
           </TouchableOpacity>
@@ -87,10 +105,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   title: {
-    fontSize: 28,
+    fontSize: 38,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#333',
+    color: '#6e76ff',
     marginBottom: 8,
   },
   subtitle: {

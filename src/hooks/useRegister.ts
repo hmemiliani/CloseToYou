@@ -13,7 +13,6 @@ const useRegister = (navigation: NavigationProp<RootStackParamList>) => {
   const handleRegister = async (values: RegisterValues) => {
     try {
       await api.post('/auth/register', values);
-      Alert.alert('Registration successful', 'You can now log in.');
       navigation.navigate('Login');
     } catch (error) {
       console.error('Registration error:', error);
