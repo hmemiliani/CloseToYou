@@ -15,7 +15,7 @@ import useAuth from '../hooks/useAuth';
 
 const LoginScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [loading, setLoading] = useState(false); // Estado de carga
+  const [loading, setLoading] = useState(false);
   const { handleLogin } = useAuth(setLoading, navigation);
 
   const loginValidationSchema = Yup.object().shape({

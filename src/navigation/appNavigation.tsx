@@ -33,8 +33,8 @@ export function AppNavigator() {
     const checkOnboarding = async () => {
       try {
         const onboardingSeen = await AsyncStorage.getItem('onboardingSeen');
-        //setShowOnboarding(true);
-        setShowOnboarding(!onboardingSeen);
+        setShowOnboarding(true);
+        //setShowOnboarding(!onboardingSeen);
       } catch (error) {
         console.error('Error checking onboarding state:', error);
       } finally {

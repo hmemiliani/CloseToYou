@@ -10,7 +10,6 @@ const RegisterScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { handleRegister } = useRegister(navigation);
 
-  // Esquema de validación actualizado con confirmPassword
   const registerValidationSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     email: Yup.string().email('Invalid email').required('Email is required'),

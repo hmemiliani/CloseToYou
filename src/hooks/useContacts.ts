@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import api, { uploadImage } from '../api/axiosConfig';
+import api from '../api/axiosConfig';
 import { Contact } from '../types/navigation';
 
 export const useContacts = () => {
@@ -9,7 +9,6 @@ export const useContacts = () => {
 
   const loadContacts = async () => {
     try {
-
       const response = await api.get('/contacts');
 
       const transformedContacts = response.data.map((contact: any) => ({
@@ -37,31 +36,41 @@ export const useContacts = () => {
     contact: {
       name: string;
       email: string;
-      phone: number;
+      phone: string;
       contactType: 'Client' | 'Employee';
       latitude: number | null;
       longitude: number | null;
-      profilePicture: string | null;
       id?: string;
     },
     file?: any
   ) => {
     try {
+      const formData = new FormData();
+      formData.append('name', contact.name);
+      formData.append('email', contact.email || '');
+      formData.append('phone', contact.phone);
+      formData.append('contactType', contact.contactType);
+      formData.append('latitude', contact.latitude?.toString() || '');
+      formData.append('longitude', contact.longitude?.toString() || '');
 
       if (file) {
-        const uploadedImageUrl = await uploadImage(file);
-        if (!uploadedImageUrl) {
-          console.error('Image upload failed');
-          return;
-        }
-        contact.profilePicture = uploadedImageUrl;
+        formData.append('file', {
+          uri: file.uri,
+          type: file.type,
+          name: file.name,
+        });
       }
 
       if (contact.id) {
-        await api.patch(`/contacts/${contact.id}`, contact);
+        await api.patch(`/contacts/${contact.id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
       } else {
-        await api.post('/contacts', contact);
+        await api.post('/contacts', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
       }
+
       loadContacts();
     } catch (error) {
       console.error('Failed to add/update contact:', error);

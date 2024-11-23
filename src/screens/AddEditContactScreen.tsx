@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, TextInput, Button, Image, TouchableOpacity, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, TextInput, Button, Image, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useProfileImage } from '../hooks/useProfileImage';
@@ -25,10 +25,10 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
       setName(contact.name || '');
       setPhone(contact.phone || '');
       setEmail(contact.email || '');
-      setProfileImage(contact.profileImage || undefined);
-      selectTag(contact.tag || 'Client');
+      setProfileImage(contact.profilePicture || undefined);
+      selectTag(contact.contactType || 'Client');
       if (contact.location) {
-        selectLocation(contact.location.latitude, contact.location.longitude);
+        selectLocation(contact.latitude, contact.longitude);
       }
     }
   }, [route.params]);
@@ -48,13 +48,13 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
       const transformedContact = {
         ...(route.params?.contactId && { id: route.params.contactId }),
         name,
-        email: email || '',
-        phone: phone || '' ,
-        contactType: tag || 'Client',
-        latitude: location?.latitude || null,
-        longitude: location?.longitude || null,
-        profilePicture: null,
+        email,
+        phone,
+        contactType: tag,
+        latitude: location?.latitude || 4.5709,
+        longitude: location?.longitude || -74.2973,
       };
+
       await addOrUpdateContact(transformedContact, file);
       navigation.navigate('ContactList', {});
     } catch (error) {
@@ -70,7 +70,9 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
             <Image source={{ uri: profileImage }} style={styles.profileImage} />
           ) : (
             <View style={styles.placeholder}>
-              <Text style={styles.currentAvatar}><Icon name="image" size={50} color="#FFF" /></Text>
+              <Text style={styles.currentAvatar}>
+                <Icon name="image" size={50} color="#FFF" />
+              </Text>
             </View>
           )}
         </TouchableOpacity>
@@ -96,8 +98,8 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
           style={styles.map}
           provider={PROVIDER_GOOGLE}
           initialRegion={{
-            latitude: location?.latitude || 37.78825,
-            longitude: location?.longitude || -122.4324,
+            latitude: location?.latitude || 4.5709,
+            longitude: location?.longitude || -74.2973,
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           }}
@@ -109,10 +111,7 @@ const AddEditContactScreen = ({ route, navigation }: Props) => {
           {location && <Marker coordinate={location} />}
         </MapView>
       ) : (
-        <>
-          <ActivityIndicator size="large" color="#0000ff" />
-          <Text style={styles.loadingText}>Loading map...</Text>
-        </>
+        <Text>Loading map...</Text>
       )}
 
       <Button title="Save Contact" onPress={handleSave} />
@@ -124,15 +123,21 @@ const styles = StyleSheet.create({
   container: { padding: 20 },
   imgContainer: { alignItems: 'center', marginBottom: 20 },
   profileImage: { width: 100, height: 100, borderRadius: 50, marginBottom: 20 },
-  currentAvatar: { fontSize: 50, color: '#FFF' },
-  placeholder: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#ccc', justifyContent: 'center', alignItems: 'center', marginBottom: 20 },
+  placeholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   input: { height: 40, borderColor: 'gray', borderWidth: 1, margin: 10, padding: 10 },
   label: { fontSize: 16, marginBottom: 10 },
   tagContainer: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 },
   tagOption: { fontSize: 16, padding: 10, color: 'grey' },
   selectedTag: { fontWeight: 'bold', color: 'blue' },
   map: { height: 200, marginVertical: 20 },
-  loadingText: { textAlign: 'center', margin: 10, color: 'gray' },
 });
 
 export default AddEditContactScreen;

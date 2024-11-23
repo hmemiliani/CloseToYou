@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  Button,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import axios from 'axios';
 import api from '../api/axiosConfig';
+import useSyncContacts from '../hooks/useSyncContacts';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'UserDetail'>;
 
@@ -16,6 +26,7 @@ const UserDetailScreen = ({ navigation }: Props) => {
     profileImage?: string;
   } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const { syncContacts, syncing } = useSyncContacts();
 
   const fetchUserData = async () => {
     try {
@@ -74,6 +85,20 @@ const UserDetailScreen = ({ navigation }: Props) => {
           <Text style={styles.email}>{userData.email}</Text>
           <Text style={styles.phone}>{userData.phone}</Text>
           <Button title="Logout" onPress={handleLogout} />
+          <TouchableOpacity
+            style={[
+              styles.syncButton,
+              syncing && styles.disabledButton,
+            ]}
+            onPress={syncContacts}
+            disabled={syncing}
+          >
+            {syncing ? (
+              <ActivityIndicator size="small" color="#FFF" />
+            ) : (
+              <Text style={styles.syncButtonText}>Sync Contacts</Text>
+            )}
+          </TouchableOpacity>
         </>
       ) : (
         <Text>Error loading user data</Text>
@@ -98,6 +123,21 @@ const styles = StyleSheet.create({
   name: { fontSize: 24, fontWeight: 'bold' },
   email: { fontSize: 18, color: 'gray' },
   phone: { fontSize: 18, color: 'gray' },
+  syncButton: {
+    backgroundColor: '#007BFF',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  syncButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#999',
+  },
 });
 
 export default UserDetailScreen;
